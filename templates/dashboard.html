@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saravana &amp; Co — Accounts Dashboard</title>
+  <meta name="description"
+    content="Full accounts dashboard — invoices, products, purchases, sales and suppliers for Saravana &amp; Co TV Showroom.">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* ─────────────── RESET ─────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #faf8f4;
+      --surface: #ffffff;
+      --surface2: #f2ede5;
+      --border: #d4c9bb;
+      --accent: #b5451b;
+      --gold: #c9943a;
+      --green: #27ae60;
+      --blue: #2980b9;
+      --purple: #7d3c98;
+      --orange: #ca6f1e;
+      --text: #1a1410;
+      --muted: #8a7e72;
+      --danger: #c0392b;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--text);
+      color: #fff;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #333;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand h1 {
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: .02em;
+    }
+
+    .brand .badge {
+      background: #555;
+      color: #fff;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    #btn-new-invoice {
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      padding: 9px 22px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .2s, transform .1s;
+    }
+
+    #btn-new-invoice:hover {
+      background: #b07e2a;
+      transform: translateY(-1px);
+    }
+
+    /* ─── MAIN ─── */
+    .main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    /* ─── STATS ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+    }
+
+    .stat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-sub {
+      font-size: .76rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ─── TAB BAR ─── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ─── TAB PANELS ─── */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* ─── TOOLBAR ─── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar h2 {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0 14px;
+      gap: 8px;
+      transition: border-color .2s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+    }
+
+    .search-box span {
+      color: var(--muted);
+    }
+
+    .search-box input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      padding: 10px 0;
+      width: 220px;
+    }
+
+    .search-box input::placeholder {
+      color: var(--muted);
+    }
+
+    /* ─── ADD BUTTON ─── */
+    .btn-add-new {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s, transform .1s;
+    }
+
+    .btn-add-new:hover {
+      background: #229954;
+    }
+
+    /* ─── TABLE WRAP ─── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      background: var(--surface2);
+      padding: 13px 18px;
+      text-align: left;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 11px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: .88rem;
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover td {
+      background: var(--surface2);
+    }
+
+    .col-num {
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .col-amount {
+      font-weight: 700;
+      color: var(--green);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .col-date {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    /* ─── BADGES ─── */
+    .badge-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .badge-green {
+      background: #eafaf1;
+      color: #1e8449;
+      border: 1px solid #a9dfbf;
+    }
+
+    .badge-orange {
+      background: #fef5e7;
+      color: #ca6f1e;
+      border: 1px solid #f8c471;
+    }
+
+    .badge-red {
+      background: #fdedec;
+      color: #c0392b;
+      border: 1px solid #f1948a;
+    }
+
+    .badge-blue {
+      background: #eaf4fb;
+      color: #1f618d;
+      border: 1px solid #85c1e9;
+    }
+
+    .badge-purple {
+      background: #f5eef8;
+      color: #7d3c98;
+      border: 1px solid #c39bd3;
+    }
+
+    .badge-gold {
+      background: #fef9e7;
+      color: #9a7d0a;
+      border: 1px solid #f7dc6f;
+    }
+
+    /* ─── INVOICE TABLE (custom grid) ─── */
+    .inv-table-header {
+      display: grid;
+      grid-template-columns: 120px 1fr 110px 120px 130px 160px;
+      padding: 13px 20px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      min-width: 850px;
+    }
+
+    .inv-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 110px 120px 130px 160px;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background .12s;
+      min-width: 850px;
+    }
+
+    .inv-row:last-child {
+      border-bottom: none;
+    }
+
+    .inv-row:hover {
+      background: var(--surface2);
+    }
+
+    .inv-no {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: .88rem;
+    }
+
+    .inv-customer {
+      font-size: .92rem;
+      font-weight: 500;
+    }
+
+    .inv-customer small {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .inv-date {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .inv-amount {
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--green);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .inv-gst {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity .15s, transform .1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .btn-action:hover {
+      opacity: .8;
+    }
+
+    .btn-action:active {
+      opacity: 1;
+    }
+
+    .btn-download {
+      background: #eaf4fb;
+      color: #1f618d;
+      border: 1px solid #85c1e9;
+    }
+
+    .btn-print {
+      background: #eafaf1;
+      color: #1e8449;
+      border: 1px solid #a9dfbf;
+    }
+
+    .btn-edit {
+      background: #fef9e7;
+      color: #9a7d0a;
+      border: 1px solid #f7dc6f;
+    }
+
+    .btn-delete {
+      background: #fdedec;
+      color: #c0392b;
+      border: 1px solid #f1948a;
+    }
+
+    /* ─── SUPPLIER CARDS ─── */
+    .supplier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .supplier-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+    }
+
+    .supplier-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .supplier-detail {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .85rem;
+      margin-bottom: 6px;
+    }
+
+    .supplier-detail span:first-child {
+      width: 20px;
+      text-align: center;
+    }
+
+    .supplier-actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* ─── SALES BAR CHART ─── */
+    .chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+    }
+
+    .chart-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+      color: var(--accent);
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .bar-label {
+      width: 200px;
+      font-size: .82rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      background: var(--surface2);
+      border-radius: 6px;
+      height: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      transition: width .6s cubic-bezier(.34, 1, .64, 1);
+    }
+
+    .bar-value {
+      width: 80px;
+      text-align: right;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ─── EMPTY / LOADING ─── */
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--muted);
+    }
+
+    .empty-state .emoji {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--text);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: .88rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    #toast.success {
+      border-left: 3px solid var(--green);
+    }
+
+    #toast.error {
+      border-left: 3px solid var(--danger);
+    }
+
+    /* ─── MODAL OVERLAY ─── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 20, 16, .55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 560px;
+      width: 95%;
+      transform: scale(.95);
+      transition: transform .2s;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.open .modal {
+      transform: scale(1);
+    }
+
+    .modal h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    /* ─── FORM INSIDE MODAL ─── */
+    .modal-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .modal-form .full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    /* ─── MODAL BUTTONS ─── */
+    .btn-cancel {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 9px 20px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    .btn-cancel:hover {
+      background: #e8e2d8;
+    }
+
+    .btn-confirm-del {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    .btn-confirm-del:hover {
+      background: #a93226;
+    }
+
+    .btn-save-modal {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 9px 22px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      transition: background .2s;
+    }
+
+    .btn-save-modal:hover {
+      background: #9a3815;
+    }
+
+    .btn-save-modal:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .tab-btn .tab-label {
+        display: none;
+      }
+
+      .modal-form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 0 16px;
+      }
+
+      .main {
+        padding: 24px 14px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box, .search-box input {
+        width: 100%;
+      }
+    }
+
+    /* ─── HIDDEN PRINT INVOICE ─── */
+    #print-invoice-wrapper {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    #print-invoice {
+      width: 720px;
+      background: #fff;
+      border: double 2.5px #000;
+      padding: 30px 30px 40px;
+      font-family: "Times New Roman", serif;
+      font-size: 13px;
+      color: #000;
+    }
+
+    #print-invoice .inv-header {
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    #print-invoice .inv-title {
+      font-size: 22pt;
+      font-weight: bold;
+      display: block;
+    }
+
+    #print-invoice .inv-sub {
+      font-size: 13pt;
+      font-weight: bold;
+      display: block;
+    }
+
+    #print-invoice .inv-dealers {
+      font-size: 11pt;
+      display: block;
+    }
+
+    #print-invoice .inv-addr {
+      font-size: 11pt;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    #print-invoice .inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "Times New Roman", serif;
+      font-size: 12px;
+    }
+
+    #print-invoice .inv-table td,
+    #print-invoice .inv-table th {
+      border: 1px solid #000;
+      padding: 4px 6px;
+      vertical-align: top;
+    }
+
+    #print-invoice .inv-table th {
+      text-align: center;
+      font-weight: normal;
+    }
+
+    #print-invoice .tax-invoice-cell {
+      text-align: center;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px;
+    }
+
+    #print-invoice .customer-cell {
+      width: 70%;
+      vertical-align: top;
+    }
+
+    #print-invoice .invoice-meta-cell {
+      width: 30%;
+      vertical-align: top;
+    }
+
+    #print-invoice #pi-items-table {
+      height: 500px;
+      table-layout: fixed;
+    }
+
+    #print-invoice .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "Times New Roman", serif;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    #print-invoice .summary-table td {
+      border: 1px solid #000;
+      padding: 5px 7px;
+      vertical-align: top;
+    }
+
+    #print-invoice .sig-area {
+      text-align: right;
+      margin-top: 18px;
+      font-family: "Times New Roman", serif;
+      font-size: 12px;
+    }
+
+    #print-invoice .sig-label {
+      font-style: italic;
+      border-top: 1px solid #333;
+      display: inline-block;
+      padding-top: 4px;
+      min-width: 160px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header>
+    <div class="brand">
+      <h1>🧾 Saravana &amp; Co</h1>
+      <span class="badge">Accounts Dashboard</span>
+    </div>
+    <a id="btn-new-invoice" href="/">➕ New Invoice</a>
+  </header>
+
+  <div class="main">
+
+    <!-- Stats (6 cards — loaded from /api/stats) -->
+    <div class="stats-grid">
+      <div class="stat-card total-invoices">
+        <span class="stat-icon">🧾</span>
+        <div class="stat-label">Total Invoices</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card total-revenue">
+        <span class="stat-icon">💰</span>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value" id="stat-revenue">—</div>
+        <div class="stat-sub">Net billed</div>
+      </div>
+      <div class="stat-card this-month">
+        <span class="stat-icon">📅</span>
+        <div class="stat-label">This Month Sales</div>
+        <div class="stat-value" id="stat-month">—</div>
+        <div class="stat-sub" id="stat-month-label">Revenue</div>
+      </div>
+      <div class="stat-card purchase-val">
+        <span class="stat-icon">🛒</span>
+        <div class="stat-label">Month Purchases</div>
+        <div class="stat-value" id="stat-month-purch">—</div>
+        <div class="stat-sub" id="stat-purch-label">Inventory spend</div>
+      </div>
+      <div class="stat-card low-stock">
+        <span class="stat-icon">⚠️</span>
+        <div class="stat-label">Low Stock</div>
+        <div class="stat-value" id="stat-low">—</div>
+        <div class="stat-sub">≤ 5 units</div>
+      </div>
+      <div class="stat-card avg-invoice">
+        <span class="stat-icon">🚫</span>
+        <div class="stat-label">Out of Stock</div>
+        <div class="stat-value" id="stat-out">—</div>
+        <div class="stat-sub">0 units</div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-invoices" onclick="switchTab('invoices')">📋 <span
+          class="tab-label">Invoices / Sales</span></button>
+      <button class="tab-btn" id="tab-products" onclick="switchTab('products')">📦 <span
+          class="tab-label">Products</span></button>
+      <button class="tab-btn" id="tab-purchases" onclick="switchTab('purchases')">🛒 <span
+          class="tab-label">Purchases</span></button>
+      <button class="tab-btn" id="tab-suppliers" onclick="switchTab('suppliers')">🏭 <span
+          class="tab-label">Suppliers</span></button>
+    </div>
+
+    <!-- ─────────── TAB: INVOICES / SALES ─────────── -->
+    <div class="tab-panel active" id="panel-invoices">
+      <div class="chart-wrap" id="inv-chart-wrap" style="margin-bottom:20px;">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading chart…</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <h2>📋 Invoices &amp; Sales</h2>
+        <div class="search-box">
+          <span>🔍</span>
+          <input id="search-input" type="text" placeholder="Search customer or invoice no…" oninput="handleSearch()">
+        </div>
+      </div>
+      <div class="table-wrap" id="table-wrap">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading invoices…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────── TAB: PRODUCTS ─────────── -->
+    <div class="tab-panel" id="panel-products">
+      <div class="toolbar">
+        <h2>Product Stock &amp; Prices</h2>
+        <button class="btn-add-new" onclick="openAddModal('product')">➕ Add Product</button>
+      </div>
+      <div class="table-wrap" id="products-wrap">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading products…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────── TAB: PURCHASES ─────────── -->
+    <div class="tab-panel" id="panel-purchases">
+      <div class="toolbar">
+        <h2>Purchase History</h2>
+        <button class="btn-add-new" onclick="openAddModal('purchase')">➕ Add Purchase</button>
+      </div>
+      <div class="table-wrap" id="purchases-wrap">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading purchases…</div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- ─────────── TAB: SUPPLIERS ─────────── -->
+    <div class="tab-panel" id="panel-suppliers">
+      <div class="toolbar">
+        <h2>Suppliers</h2>
+        <button class="btn-add-new" onclick="openAddModal('supplier')">➕ Add Supplier</button>
+      </div>
+      <div id="suppliers-wrap">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading suppliers…</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.main -->
+
+  <!-- Hidden print template -->
+  <div id="print-invoice-wrapper">
+    <div id="print-invoice">
+      <div class="inv-header">
+        <span class="inv-title">SARAVANA &amp; CO</span>
+        <span class="inv-sub">TV SHOWROOM</span>
+        <span class="inv-dealers">DEALERS IN : LG, SAMSUNG, SONY, INTEX, HAIER</span>
+        <span class="inv-dealers">USHA, WHIRLPOOL, CROMPTON, PREETHI, V-GUARD &amp; ETC.</span>
+        <span class="inv-addr">Main Bazzar Road, Anaicut, Vellore, Tamilnadu-632 101</span>
+        <span class="inv-dealers" style="font-size:10pt;">GSTIN : 33AJRPA3178R1ZM &nbsp;|&nbsp; Phone :
+          9445241303</span>
+      </div>
+      <table class="inv-table" style="margin-top:8px;">
+        <tr>
+          <td colspan="2" class="tax-invoice-cell">TAX INVOICE</td>
+        </tr>
+        <tr>
+          <td class="customer-cell" style="min-height:90px;">
+            <div style="min-height:80px;">
+              <div><strong>Name : </strong><span id="pi-name">&nbsp;</span></div>
+              <div style="height:6px"></div>
+              <div><strong>Address : </strong><span id="pi-address" style="white-space:pre-line">&nbsp;</span></div>
+              <div style="height:6px"></div>
+              <div>Mobile no : <span id="pi-mobile">&nbsp;</span></div>
+              <div style="height:6px"></div>
+              <div>GST NO : <span id="pi-gst-no"><strong>&nbsp;</strong></span></div>
+            </div>
+          </td>
+          <td class="invoice-meta-cell">
+            <div style="min-height:80px;">
+              <div style="height:4px"></div>
+              <div><strong>Invoice No : </strong><span id="pi-invoice-no">&nbsp;</span></div>
+              <div style="height:10px"></div>
+              <div><strong>Date : </strong><span id="pi-date">&nbsp;</span></div>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <table class="inv-table" style="margin-top:0; border-top:none;" id="pi-items-table">
+        <thead>
+          <tr style="text-align:center; background:#f5f5f5;">
+            <th style="width:7%;">S.No</th>
+            <th style="width:23%;">Name of Product</th>
+            <th style="width:13%;">HSN Code</th>
+            <th style="width:10%;">Qty</th>
+            <th style="width:9%;">Weight</th>
+            <th style="width:14%;">Rate</th>
+            <th style="width:7%;">CGST %</th>
+            <th style="width:7%;">SGST %</th>
+            <th style="width:15%;">Total</th>
+          </tr>
+        </thead>
+        <tbody id="pi-items-body">
+          <tr>
+            <td colspan="9" style="text-align:center;color:#999;padding:16px;">No items</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="summary-table">
+        <tr>
+          <td style="width:60%; vertical-align:top;" rowspan="2">
+            <div style="line-height:1.7;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5%
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18%
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 28%</div>
+            <div>CGST :
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="pi-cgst-amt">—</span></div>
+            <div style="margin-top:6px;">SGST :
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                id="pi-sgst-amt">—</span></div>
+            <div style="margin-top:4px; font-style:italic; padding:10px 7px;">Amount in words : <span
+                id="pi-amount-words"><em>—</em></span></div>
+          </td>
+          <td style="width:40%; vertical-align:top;">
+            <div style="line-height:2;">
+              <div>Total Amount &nbsp;&nbsp; : ₹<span id="pi-subtotal">0.00</span></div>
+              <div>CGST &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+                ₹<span id="pi-cgst-td">0.00</span></div>
+              <div>SGST &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                :₹<span id="pi-sgst-td">0.00</span></div>
+              <div>Paise Rounded &nbsp;: <span id="pi-paise">—</span></div>
+              <div><strong>Net Amount &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ₹<span id="pi-net">0.00</span></strong></div>
+            </div>
+          </td>
+        </tr>
+        <tr></tr>
+      </table>
+      <div class="sig-area">
+        <br><br><br><br>
+        <span class="sig-label">Authorized Signature</span><br>
+        <p>No Return &amp; No Refunds</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DELETE CONFIRM MODAL ═══ -->
+  <div class="modal-overlay" id="del-modal">
+    <div class="modal">
+      <h3>🗑️ Confirm Delete</h3>
+      <p id="del-modal-msg">This action cannot be undone.</p>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn-confirm-del" id="btn-confirm-del" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ EDIT / ADD MODAL ═══ -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <h3 id="edit-modal-title">Edit Record</h3>
+      <div id="edit-modal-body"></div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-save-modal" id="btn-save-modal" onclick="saveModal()">💾 Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ════════════════════════════════════════════════
+    //  STATE
+    // ════════════════════════════════════════════════
+    const tabLoaded = { invoices: false, products: false, purchases: false, suppliers: false };
+    let deleteTargetId = null;
+    let deleteCollection = null;
+    let deleteReload = null;
+    let searchTimer = null;
+
+    // Edit modal state
+    let editCollection = null;
+    let editDocId = null; // null = new record
+
+    // ════════════════════════════════════════════════
+    //  TAB SWITCHING
+    // ════════════════════════════════════════════════
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`tab-${name}`).classList.add('active');
+      document.getElementById(`panel-${name}`).classList.add('active');
+      
+      // Always fetch fresh data when switching tabs
+      loadStats();
+      if (name === 'invoices') {
+        const q = document.getElementById('search-input') ? document.getElementById('search-input').value.trim() : '';
+        loadInvoices(q);
+      }
+      if (name === 'products') loadProducts();
+      if (name === 'purchases') loadPurchases();
+      if (name === 'suppliers') loadSuppliers();
+    }
+
+    // Auto-refresh when returning to the dashboard from another browser tab
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        const activeTab = document.querySelector('.tab-btn.active').id.replace('tab-', '');
+        switchTab(activeTab);
+      }
+    });
+
+    // Background auto-polling (every 5 seconds) to keep screens fully live
+    setInterval(() => {
+      if (document.visibilityState !== 'visible') return; // Pause polling when tab is hidden
+      
+      loadStats();
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (!activeTab) return;
+      const name = activeTab.id.replace('tab-', '');
+      
+      if (name === 'invoices') {
+        const q = document.getElementById('search-input') ? document.getElementById('search-input').value.trim() : '';
+        if (!q) loadInvoices('', true); // Only poll invoices if no search is active
+      }
+      if (name === 'products') loadProducts();
+      if (name === 'purchases') loadPurchases();
+      if (name === 'suppliers') loadSuppliers();
+    }, 5000);
+
+    // ════════════════════════════════════════════════
+    //  INVOICES TAB
+    // ════════════════════════════════════════════════
+    window.onload = () => {
+      loadStats();
+      loadInvoices();
+      tabLoaded.invoices = true;
+      // Pre-fetch suppliers and products so purchase dropdown is ready immediately
+      fetch('/api/suppliers').then(r => r.json()).then(d => { window._supplierList = d; }).catch(() => { });
+      fetch('/api/products').then(r => r.json()).then(d => { window._productList = d; }).catch(() => { });
+    };
+
+    async function loadStats() {
+      try {
+        const s = await (await fetch('/api/stats')).json();
+        const inv = s.invoices || {};
+        const stk = s.stock || {};
+        const pur = s.purchases || {};
+        setText('stat-total', inv.total || 0);
+        setText('stat-revenue', '₹' + fmtINR(inv.revenue || 0));
+        setText('stat-month', '₹' + fmtINR(inv.month_revenue || 0));
+        setText('stat-month-label', s.month_label || '');
+        setText('stat-avg', '₹' + fmtINR(inv.avg || 0));
+        setText('stat-month-purch', '₹' + fmtINR(pur.month_value || 0));
+        setText('stat-purch-label', s.month_label || 'Inventory spend');
+        setText('stat-low', stk.low_stock || 0);
+        setText('stat-out', stk.out_of_stock || 0);
+      } catch (e) { /* silently ignore stats load failure */ }
+    }
+
+    async function loadInvoices(q = '', silent = false) {
+      const wrap = document.getElementById('table-wrap');
+      if (!silent) wrap.innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading invoices…</div></div>';
+      try {
+        const url = q ? `/api/invoices?q=${encodeURIComponent(q)}` : '/api/invoices';
+        const data = await (await fetch(url)).json();
+        renderStats(data);
+        renderRevenueChart(data);
+        renderInvoiceTable(data);
+      } catch (e) {
+        wrap.innerHTML = '<div class="empty-state"><span class="emoji">⚠️</span><p>Failed to load invoices.</p><small>Is the Flask server running?</small></div>';
+      }
+    }
+
+    function renderRevenueChart(data) {
+      const chartWrap = document.getElementById('inv-chart-wrap');
+      if (!chartWrap) return;
+      // Aggregate by item product names from invoice items
+      const byProduct = {};
+      data.forEach(inv => {
+        (inv.items || []).forEach(item => {
+          const key = item.name || 'Unknown';
+          if (!byProduct[key]) byProduct[key] = { revenue: 0, qty: 0 };
+          byProduct[key].revenue += (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
+          byProduct[key].qty += parseFloat(item.qty) || 0;
+        });
+      });
+      const sorted = Object.entries(byProduct).sort((a, b) => b[1].revenue - a[1].revenue).slice(0, 8);
+      const maxRev = sorted[0]?.[1].revenue || 1;
+      if (!sorted.length) { chartWrap.innerHTML = '<div class="chart-title">📈 Top Products by Revenue</div><p style="color:var(--muted);text-align:center;padding:12px 0;">No items yet.</p>'; return; }
+      chartWrap.innerHTML = '<div class="chart-title">📈 Top Products by Revenue</div>' +
+        sorted.map(([name, d]) => `
+      <div class="bar-row">
+        <div class="bar-label">${esc(name)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(d.revenue / maxRev * 100).toFixed(1)}%"></div></div>
+        <div class="bar-value">₹${fmtINR(d.revenue)}</div>
+      </div>`).join('');
+    }
+
+    function renderStats(data) {
+      // Stats are now loaded from /api/stats — this is a lightweight fallback
+      // that keeps the invoice-count and revenue cards in sync after tab reloads.
+      const total = data.length;
+      const revenue = data.reduce((s, i) => s + (i.net_amount || 0), 0);
+      setText('stat-total', total);
+      setText('stat-revenue', '₹' + fmtINR(revenue));
+    }
+
+    function renderInvoiceTable(data) {
+      const wrap = document.getElementById('table-wrap');
+      if (!data.length) {
+        wrap.innerHTML = `<div class="empty-state"><span class="emoji">📭</span><p>No invoices found.</p>
+      <small>Save an invoice from the <a href="/" style="color:var(--gold)">Invoice Generator</a> to see it here.</small></div>`;
+        return;
+      }
+      const header = `<div class="inv-table-header">
+    <div>Invoice No</div><div>Customer</div>
+    <div class="col-date-h">Date</div><div>Amount</div>
+    <div class="col-gst">GST</div><div>Actions</div>
+  </div>`;
+      const rows = data.map(inv => {
+        const dateStr = inv.invoice_date
+          ? new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+          : '—';
+        return `<div class="inv-row">
+      <div class="inv-no">${esc(inv.invoice_no || '—')}</div>
+      <div class="inv-customer">${esc(inv.customer_name || '—')}<small>${esc(inv.customer_mobile || '')}</small></div>
+      <div class="inv-date col-date-c">${dateStr}</div>
+      <div class="inv-amount">₹${fmtINR(inv.net_amount || 0)}</div>
+      <div class="inv-gst col-gst">CGST ${inv.cgst_pct || 0}% + SGST ${inv.sgst_pct || 0}%</div>
+      <div class="action-btns">
+        <button class="btn-action btn-download" onclick="downloadPDF('${inv._id}')">⬇ PDF</button>
+        <button class="btn-action btn-edit"     onclick="openEditInvoice('${inv._id}')">✏️ Edit</button>
+        <button class="btn-action btn-delete"   onclick="openDeleteModal('${inv._id}','invoices','${esc(inv.invoice_no || '')}',loadInvoices)">🗑️</button>
+      </div>
+    </div>`;
+      }).join('');
+      wrap.innerHTML = header + rows;
+    }
+
+    function handleSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => loadInvoices(document.getElementById('search-input').value.trim()), 350);
+    }
+
+    // ════════════════════════════════════════════════
+    //  INVOICE: EDIT
+    // ════════════════════════════════════════════════
+    async function openEditInvoice(id) {
+      showToast('⏳ Loading invoice…');
+      try {
+        const inv = await (await fetch(`/api/invoices/${id}`)).json();
+        editCollection = 'invoices';
+        editDocId = id;
+        document.getElementById('edit-modal-title').textContent = `✏️ Edit Invoice ${inv.invoice_no || ''}`;
+        document.getElementById('edit-modal-body').innerHTML = `
+      <div class="modal-form">
+        <div class="form-group"><label>Invoice No</label><input id="ef-invoice-no" value="${escAttr(inv.invoice_no || '')}"></div>
+        <div class="form-group"><label>Date</label><input type="date" id="ef-date" value="${escAttr(inv.invoice_date || '')}"></div>
+        <div class="form-group full"><label>Customer Name</label><input id="ef-name" value="${escAttr(inv.customer_name || '')}"></div>
+        <div class="form-group full"><label>Address</label><textarea id="ef-address">${esc(inv.customer_address || '')}</textarea></div>
+        <div class="form-group"><label>Mobile</label><input id="ef-mobile" value="${escAttr(inv.customer_mobile || '')}"></div>
+        <div class="form-group"><label>Customer GSTIN</label><input id="ef-gstin" value="${escAttr(inv.customer_gstin || '')}"></div>
+        <div class="form-group"><label>CGST %</label><input type="number" id="ef-cgst" value="${inv.cgst_pct || 0}" step="0.5"></div>
+        <div class="form-group"><label>SGST %</label><input type="number" id="ef-sgst" value="${inv.sgst_pct || 0}" step="0.5"></div>
+        <div class="form-group"><label>Net Amount (₹)</label><input type="number" id="ef-net" value="${inv.net_amount || 0}" step="0.01"></div>
+        <div class="form-group"><label>GST Type</label>
+          <select id="ef-gst-type">
+            <option value="cgst_sgst" ${inv.gst_type === 'cgst_sgst' ? 'selected' : ''}>CGST + SGST</option>
+            <option value="igst" ${inv.gst_type === 'igst' ? 'selected' : ''}>IGST</option>
+          </select>
+        </div>
+      </div>`;
+        openEditModal();
+      } catch { showToast('❌ Failed to load invoice.', 'error'); }
+    }
+
+    // ════════════════════════════════════════════════
+    //  PRODUCTS TAB
+    // ════════════════════════════════════════════════
+    async function loadProducts() {
+      const wrap = document.getElementById('products-wrap');
+      try {
+        const data = await (await fetch('/api/products')).json();
+        if (!data.length) { wrap.innerHTML = '<div class="empty-state"><span class="emoji">📭</span><p>No products found.</p></div>'; return; }
+        const rows = data.map(p => {
+          const stock = p.stock ?? 0;
+          const badge = stock <= 0 ? `<span class="badge-pill badge-red">Out of Stock</span>`
+            : stock <= 5 ? `<span class="badge-pill badge-orange">${stock} Low ⚠️</span>`
+              : `<span class="badge-pill badge-green">${stock} Units</span>`;
+          return `<tr>
+        <td class="col-num">${esc(p.product_code || '—')}</td>
+        <td><strong>${esc(p.name)}</strong></td>
+        <td><span class="badge-pill badge-blue">${esc(p.category || '—')}</span></td>
+        <td class="col-amount">₹${fmtINR(p.buy_price || 0)}</td>
+        <td class="col-amount">₹${fmtINR(p.sell_price || 0)}</td>
+        <td>${badge}</td>
+        <td style="color:var(--accent);font-weight:700;">${p.total_sold || 0}</td>
+        <td style="color:var(--blue);font-weight:700;">${p.total_bought || 0}</td>
+        <td><span class="badge-pill badge-purple">${p.gst || 18}%</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-action btn-edit"   onclick='openEditProduct(${JSON.stringify(p)})'>✏️ Edit</button>
+            <button class="btn-action btn-delete" onclick="openDeleteModal('${p._id}','products','${esc(p.name)}',loadProducts)">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+        }).join('');
+        wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Code</th><th>Product Name</th><th>Category</th><th>Buy Price</th><th>Sell Price</th><th>Stock</th><th>Sold</th><th>Bought</th><th>GST</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+      } catch { wrap.innerHTML = '<div class="empty-state"><span class="emoji">⚠️</span><p>Failed to load products.</p></div>'; }
+    }
+
+    function openAddModal(type) {
+      editDocId = null;
+      editCollection = type;
+      if (type === 'product') openProductForm({});
+      if (type === 'purchase') openPurchaseForm({});
+      if (type === 'supplier') openSupplierForm({});
+    }
+
+    function openEditProduct(p) {
+      editCollection = 'product';
+      editDocId = p._id;
+      openProductForm(p);
+    }
+
+    function openProductForm(p) {
+      document.getElementById('edit-modal-title').textContent = p._id ? `✏️ Edit Product` : `➕ Add Product`;
+      document.getElementById('edit-modal-body').innerHTML = `
+    <div class="modal-form">
+      <div class="form-group"><label>Product Code</label><input id="ef-code" value="${escAttr(p.product_code || '')}"></div>
+      <div class="form-group"><label>Category</label><input id="ef-category" value="${escAttr(p.category || '')}"></div>
+      <div class="form-group full"><label>Product Name *</label><input id="ef-pname" value="${escAttr(p.name || '')}"></div>
+      <div class="form-group"><label>Buy Price (₹)</label><input type="number" id="ef-buy" value="${p.buy_price || ''}" step="0.01" min="0"></div>
+      <div class="form-group"><label>Sell Price (₹)</label><input type="number" id="ef-sell" value="${p.sell_price || ''}" step="0.01" min="0"></div>
+      <div class="form-group"><label>Stock (Units)</label><input type="number" id="ef-stock" value="${p.stock || 0}" min="0"></div>
+      <div class="form-group"><label>GST %</label><input type="number" id="ef-gst" value="${p.gst || 18}" step="0.5" min="0" max="28"></div>
+    </div>`;
+      openEditModal();
+    }
+
+    // ════════════════════════════════════════════════
+    //  PURCHASES TAB
+    // ════════════════════════════════════════════════
+    async function loadPurchases() {
+      const wrap = document.getElementById('purchases-wrap');
+      try {
+        const data = await (await fetch('/api/purchases')).json();
+        if (!data.length) { wrap.innerHTML = '<div class="empty-state"><span class="emoji">📭</span><p>No purchases found.</p></div>'; return; }
+        const rows = data.map(p => {
+          const dateStr = p.purchase_date ? new Date(p.purchase_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+          return `<tr>
+        <td class="col-num" title="Purchase ID">${esc(p.pur_id || p.purchase_no || '—')}</td>
+        <td><span style="font-size:.72rem;color:var(--muted);display:block;">${esc(p.sup_id || '—')}</span><strong>${esc(p.supplier_name || '—')}</strong></td>
+        <td><span style="font-size:.72rem;color:var(--muted);display:block;">ID: ${esc(p.product_id || '—')}</span><strong>${esc(p.product_name || p.product_code || '—')}</strong></td>
+        <td><span class="badge-pill badge-blue">${p.quantity || 0} Units</span></td>
+        <td class="col-amount">₹${fmtINR(p.price || p.buy_price || 0)}</td>
+        <td style="font-weight:700;color:var(--orange);">₹${fmtINR(p.total || 0)}</td>
+        <td class="col-date">${dateStr}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-action btn-edit"   onclick='openEditPurchase(${JSON.stringify(p)})'>✏️ Edit</button>
+            <button class="btn-action btn-delete" onclick="openDeleteModal('${p._id}','purchases','${esc(p.pur_id || p.purchase_no || '')}',loadPurchases)">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+        }).join('');
+        wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Pur ID</th><th>Supplier (Sup ID)</th><th>Product Name (ID)</th><th>Qty Bought</th><th>Price</th><th>Total</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+      } catch { wrap.innerHTML = '<div class="empty-state"><span class="emoji">⚠️</span><p>Failed to load purchases.</p></div>'; }
+    }
+
+    function openEditPurchase(p) {
+      editCollection = 'purchase';
+      editDocId = p._id;
+      openPurchaseForm(p);
+    }
+
+    function openPurchaseForm(p) {
+      document.getElementById('edit-modal-title').textContent = p._id ? `✏️ Edit Purchase` : `➕ Add Purchase`;
+      const dateVal = p.purchase_date ? p.purchase_date.split('T')[0] : '';
+      const supOpts = (window._supplierList || []).map(s =>
+        `<option value="${esc(s.supplier_name)}" data-supid="${esc(s.sup_id || s._id || '')}" ${p.supplier_name === s.supplier_name ? 'selected' : ''}>${esc(s.supplier_name)}</option>`
+      ).join('');
+      const prodOpts = (window._productList || []).map(pr =>
+        `<option value="${esc(pr.name)}" data-prodid="${esc(pr._id || '')}"></option>`
+      ).join('');
+      document.getElementById('edit-modal-body').innerHTML = `
+    <div class="modal-form">
+      <div class="form-group"><label>Purchase ID (Leave blank to auto-generate)</label><input id="ef-pno" value="${escAttr(p.pur_id || p.purchase_no || '')}" placeholder="e.g. PUR-0001"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="ef-pdate" value="${escAttr(dateVal)}"></div>
+      <div class="form-group full"><label>Supplier</label>
+        <select id="ef-supplier" onchange="onSupplierChange(this)">
+          <option value="">— Select Supplier —</option>
+          ${supOpts}
+        </select>
+      </div>
+      <div class="form-group"><label>Supplier ID (auto)</label><input id="ef-supid" value="${escAttr(p.sup_id || '')}" readonly style="background:#f5f5f5;"></div>
+      <div class="form-group full"><label>Product Name</label>
+        <input type="text" id="ef-product" list="ef-product-list" value="${escAttr(p.product_name || '')}" oninput="onProductInput(this)" placeholder="Type new or select existing">
+        <datalist id="ef-product-list">
+          ${prodOpts}
+        </datalist>
+      </div>
+      <div class="form-group"><label>Product ID (auto)</label><input id="ef-prodid" value="${escAttr(p.product_id || '')}" readonly style="background:#f5f5f5;"></div>
+      <div class="form-group"><label>Product Category</label><input type="text" id="ef-pcategory" value="${escAttr(p.category || '')}" placeholder="e.g. TV, AC, WM"></div>
+      <div class="form-group"><label>Qty Bought</label><input type="number" id="ef-qty" value="${p.quantity || ''}" min="0" oninput="calcPurchaseTotal()"></div>
+      <div class="form-group"><label>Price per Unit (₹)</label><input type="number" id="ef-pbuy" value="${p.price || p.buy_price || ''}" step="0.01" min="0" oninput="calcPurchaseTotal()"></div>
+      <div class="form-group"><label>Total (₹)</label><input type="number" id="ef-ptotal" value="${p.total || ''}" step="0.01" min="0"></div>
+    </div>`;
+      openEditModal();
+    }
+
+    window.onSupplierChange = function(sel) {
+      const opt = sel.options[sel.selectedIndex];
+      const supId = opt ? (opt.getAttribute('data-supid') || '') : '';
+      const el = document.getElementById('ef-supid');
+      if (el) el.value = supId;
+    }
+
+    window.onProductInput = function(inp) {
+      const val = inp.value;
+      const opts = document.getElementById('ef-product-list').options;
+      let matchedId = '';
+      for (let i = 0; i < opts.length; i++) {
+        if (opts[i].value === val) {
+          matchedId = opts[i].getAttribute('data-prodid') || '';
+          break;
+        }
+      }
+      const el = document.getElementById('ef-prodid');
+      if (el) el.value = matchedId;
+    }
+
+    window.calcPurchaseTotal = function() {
+      const qty = parseFloat(document.getElementById('ef-qty')?.value) || 0;
+      const price = parseFloat(document.getElementById('ef-pbuy')?.value) || 0;
+      const totalEl = document.getElementById('ef-ptotal');
+      if (totalEl) totalEl.value = (qty * price).toFixed(2);
+    }
+
+
+
+    // ════════════════════════════════════════════════
+    //  SUPPLIERS TAB
+    // ════════════════════════════════════════════════
+    async function loadSuppliers() {
+      const wrap = document.getElementById('suppliers-wrap');
+      try {
+        const data = await (await fetch('/api/suppliers')).json();
+        window._supplierList = data; // cache for purchase dropdown
+        if (!data.length) { wrap.innerHTML = '<div class="empty-state"><span class="emoji">📭</span><p>No suppliers found.</p></div>'; return; }
+        const rows = data.map(s => {
+          const contact = [s.phone, s.email, s.city, s.address].filter(Boolean).join(' | ') || '—';
+          return `<tr>
+        <td class="col-num">${esc(s.sup_id || '—')}</td>
+        <td><strong>${esc(s.supplier_name || '—')}</strong></td>
+        <td style="color:var(--muted);font-size:.85rem;">${esc(contact)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-action btn-edit"   onclick='openEditSupplier(${JSON.stringify(s)})'>✏️ Edit</button>
+            <button class="btn-action btn-delete" onclick="openDeleteModal('${s._id}','suppliers','${esc(s.supplier_name)}',loadSuppliers)">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+        }).join('');
+        wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Sup ID</th><th>Supplier Name</th><th>Contact Info (Phone | Email | City | Address)</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+      } catch { wrap.innerHTML = '<div class="empty-state"><span class="emoji">⚠️</span><p>Failed to load suppliers.</p></div>'; }
+    }
+
+    function openEditSupplier(s) {
+      editCollection = 'supplier';
+      editDocId = s._id;
+      openSupplierForm(s);
+    }
+
+    function openSupplierForm(s) {
+      document.getElementById('edit-modal-title').textContent = s._id ? `✏️ Edit Supplier` : `➕ Add Supplier`;
+      document.getElementById('edit-modal-body').innerHTML = `
+    <div class="modal-form">
+      <div class="form-group"><label>Supplier ID (Sup ID) *</label><input id="ef-supid-form" value="${escAttr(s.sup_id || '')}" placeholder="e.g. SUP-001"></div>
+      <div class="form-group"><label>Supplier Name *</label><input id="ef-sname" value="${escAttr(s.supplier_name || '')}"></div>
+      <div class="form-group"><label>Phone</label><input id="ef-sphone" value="${escAttr(s.phone || '')}"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="ef-semail" value="${escAttr(s.email || '')}"></div>
+      <div class="form-group"><label>City</label><input id="ef-scity" value="${escAttr(s.city || '')}"></div>
+      <div class="form-group full"><label>Address / Contact Info</label><textarea id="ef-saddr">${esc(s.address || '')}</textarea></div>
+    </div>`;
+      openEditModal();
+    }
+
+    // ════════════════════════════════════════════════
+    //  EDIT MODAL: OPEN / CLOSE / SAVE
+    // ════════════════════════════════════════════════
+    function openEditModal() {
+      document.getElementById('edit-modal').classList.add('open');
+    }
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('open');
+      editDocId = null; editCollection = null;
+    }
+
+    function val(id, fallback = '') {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : fallback;
+    }
+    function numVal(id, fallback = 0) {
+      const v = parseFloat(val(id));
+      return isNaN(v) ? fallback : v;
+    }
+
+    async function saveModal() {
+      const btn = document.getElementById('btn-save-modal');
+      btn.disabled = true; btn.textContent = '⏳ Saving…';
+
+      try {
+        let payload = {};
+        let url, method;
+
+        if (editCollection === 'invoices') {
+          payload = {
+            invoice_no: val('ef-invoice-no'),
+            invoice_date: val('ef-date'),
+            customer_name: val('ef-name'),
+            customer_address: val('ef-address'),
+            customer_mobile: val('ef-mobile'),
+            customer_gstin: val('ef-gstin'),
+            cgst_pct: numVal('ef-cgst'),
+            sgst_pct: numVal('ef-sgst'),
+            net_amount: numVal('ef-net'),
+            gst_type: val('ef-gst-type'),
+          };
+          url = `/api/invoices/${editDocId}`; method = 'PUT';
+        }
+        else if (editCollection === 'product') {
+          payload = {
+            product_code: val('ef-code'),
+            name: val('ef-pname'),
+            category: val('ef-category'),
+            buy_price: numVal('ef-buy'),
+            sell_price: numVal('ef-sell'),
+            stock: numVal('ef-stock'),
+            gst: numVal('ef-gst'),
+          };
+          if (!payload.name) { showToast('⚠️ Product name is required.', 'error'); btn.disabled = false; btn.textContent = '💾 Save'; return; }
+          url = editDocId ? `/api/products/${editDocId}` : '/api/products';
+          method = editDocId ? 'PUT' : 'POST';
+        }
+        else if (editCollection === 'purchase') {
+          payload = {
+            pur_id: val('ef-pno'),
+            purchase_no: val('ef-pno'),
+            purchase_date: val('ef-pdate'),
+            supplier_name: val('ef-supplier'),
+            sup_id: val('ef-supid'),
+            product_name: val('ef-product'),
+            product_id: val('ef-prodid'),
+            category: val('ef-pcategory'),
+            quantity: numVal('ef-qty'),
+            price: numVal('ef-pbuy'),
+            buy_price: numVal('ef-pbuy'),
+            total: numVal('ef-ptotal'),
+          };
+          url = editDocId ? `/api/purchases/${editDocId}` : '/api/purchases';
+          method = editDocId ? 'PUT' : 'POST';
+        }
+
+        else if (editCollection === 'supplier') {
+          payload = {
+            sup_id: val('ef-supid-form'),
+            supplier_name: val('ef-sname'),
+            phone: val('ef-sphone'),
+            email: val('ef-semail'),
+            city: val('ef-scity'),
+            address: val('ef-saddr'),
+          };
+          if (!payload.supplier_name) { showToast('⚠️ Supplier name is required.', 'error'); btn.disabled = false; btn.textContent = '💾 Save'; return; }
+          url = editDocId ? `/api/suppliers/${editDocId}` : '/api/suppliers';
+          method = editDocId ? 'PUT' : 'POST';
+        }
+
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Save failed');
+
+        closeEditModal();
+        showToast('✅ Saved successfully!', 'success');
+
+        // Reload the relevant tab
+        if (editCollection === 'invoices') { tabLoaded.invoices = false; loadInvoices(); tabLoaded.invoices = true; loadStats(); }
+        if (editCollection === 'product') { tabLoaded.products = false; loadProducts(); tabLoaded.products = true; loadStats(); }
+        if (editCollection === 'purchase') { tabLoaded.purchases = false; loadPurchases(); tabLoaded.purchases = true; loadStats(); loadSuppliers(); }
+        if (editCollection === 'supplier') { tabLoaded.suppliers = false; loadSuppliers(); tabLoaded.suppliers = true; }
+
+      } catch (err) {
+        showToast('❌ ' + err.message, 'error');
+      }
+      btn.disabled = false; btn.textContent = '💾 Save';
+    }
+
+    document.getElementById('edit-modal').addEventListener('click', function (e) {
+      if (e.target === this) closeEditModal();
+    });
+
+    // ════════════════════════════════════════════════
+    //  DELETE MODAL (generic — works for all tabs)
+    // ════════════════════════════════════════════════
+    function openDeleteModal(id, collection, label, reloadFn) {
+      deleteTargetId = id;
+      deleteCollection = collection;
+      deleteReload = reloadFn;
+      document.getElementById('del-modal-msg').textContent = `Delete "${label}"? This cannot be undone.`;
+      document.getElementById('del-modal').classList.add('open');
+    }
+    function closeDeleteModal() {
+      document.getElementById('del-modal').classList.remove('open');
+      deleteTargetId = null; deleteCollection = null; deleteReload = null;
+    }
+    async function confirmDelete() {
+      if (!deleteTargetId) return;
+      const btn = document.getElementById('btn-confirm-del');
+      btn.textContent = 'Deleting…'; btn.disabled = true;
+      try {
+        const res = await fetch(`/api/${deleteCollection}/${deleteTargetId}`, { method: 'DELETE' });
+        if (res.ok) {
+          closeDeleteModal();
+          showToast('🗑️ Deleted successfully.', 'success');
+          if (deleteReload) deleteReload();
+        } else {
+          showToast('❌ Delete failed.', 'error');
+        }
+      } catch { showToast('❌ Network error.', 'error'); }
+      btn.textContent = 'Delete'; btn.disabled = false;
+    }
+    document.getElementById('del-modal').addEventListener('click', function (e) {
+      if (e.target === this) closeDeleteModal();
+    });
+
+    // ════════════════════════════════════════════════
+    //  PDF & PRINT
+    // ════════════════════════════════════════════════
+    async function downloadPDF(id) {
+      showToast('⏳ Preparing PDF…');
+      try {
+        const res = await fetch(`/api/invoices/${id}`);
+        if (!res.ok) throw new Error();
+        const inv = await res.json();
+        populatePrintTemplate(inv);
+        printFromTemplate(inv.invoice_no || String(Date.now()));
+      } catch { showToast('❌ Failed to fetch invoice data.', 'error'); }
+    }
+
+    function populatePrintTemplate(inv) {
+      const cgstPct = inv.cgst_pct || 0, sgstPct = inv.sgst_pct || 0;
+      piSet('pi-name', inv.customer_name || '\u00a0');
+      piSet('pi-address', inv.customer_address || '\u00a0');
+      piSet('pi-mobile', inv.customer_mobile || '\u00a0');
+      piSet('pi-gst-no', inv.customer_gstin || '\u00a0');
+      piSet('pi-invoice-no', inv.invoice_no || '\u00a0');
+      if (inv.invoice_date) { const [y, m, d] = inv.invoice_date.split('-'); piSet('pi-date', `${d}/${m}/${y}`); }
+      else piSet('pi-date', '\u00a0');
+      const tbody = document.getElementById('pi-items-body');
+      const items = inv.items || [];
+      if (!items.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#999;padding:16px;">No items</td></tr>'; setPiTotals(0, cgstPct, sgstPct); return; }
+      let sub = 0;
+      tbody.innerHTML = items.map((item, i) => {
+        const q = parseFloat(item.qty) || 0, r = parseFloat(item.rate) || 0, t = q * r; sub += t;
+        return `<tr><td style="text-align:center;">${i + 1}</td><td>${esc(item.name || '')}</td>
+      <td style="text-align:center;">${esc(item.hsn || '')}</td><td style="text-align:center;">${q}</td>
+      <td style="text-align:center;">&nbsp;</td><td>₹${fmtINR(r)}</td>
+      <td style="text-align:center;">${cgstPct}%</td><td style="text-align:center;">${sgstPct}%</td>
+      <td style="text-align:right;">₹${fmtINR(t)}</td></tr>`;
+      }).join('');
+      setPiTotals(sub, cgstPct, sgstPct);
+    }
+
+    function setPiTotals(s, cgPct, sgPct) {
+      const ca = s * cgPct / 100, sa = s * sgPct / 100, g = s + ca + sa, n = Math.round(g), p = (n - g).toFixed(2);
+      piSet('pi-subtotal', fmtINR(s)); piSet('pi-cgst-td', fmtINR(ca)); piSet('pi-cgst-amt', fmtINR(ca));
+      piSet('pi-sgst-td', fmtINR(sa)); piSet('pi-sgst-amt', fmtINR(sa));
+      piSet('pi-paise', fmtINR(p)); piSet('pi-net', fmtINR(n));
+      piSet('pi-amount-words', n > 0 ? amountToWords(n) : '—');
+    }
+
+    function printFromTemplate(invoiceNo) {
+      const el = document.getElementById('print-invoice');
+      el.parentElement.style.visibility = 'visible';
+      el.parentElement.style.left = '-9999px';
+      html2pdf().set({
+        margin: [5, 5, 5, 5], filename: `Invoice_${invoiceNo}.pdf`,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, dpi: 300, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      }).from(el).save()
+        .then(() => { el.parentElement.style.visibility = 'hidden'; showToast('✅ PDF downloaded!', 'success'); })
+        .catch(() => { el.parentElement.style.visibility = 'hidden'; showToast('❌ PDF generation failed.', 'error'); });
+    }
+
+    // ════════════════════════════════════════════════
+    //  HELPERS
+    // ════════════════════════════════════════════════
+    function piSet(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+    function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+    function fmtINR(n) { return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n); }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+    function numberToWords(n) {
+      const o = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const t = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+      if (n === 0) return 'Zero'; if (n < 0) return 'Minus ' + numberToWords(-n);
+      let w = '';
+      if (n >= 10000000) { w += numberToWords(Math.floor(n / 10000000)) + ' Crore '; n %= 10000000; }
+      if (n >= 100000) { w += numberToWords(Math.floor(n / 100000)) + ' Lakh '; n %= 100000; }
+      if (n >= 1000) { w += numberToWords(Math.floor(n / 1000)) + ' Thousand '; n %= 1000; }
+      if (n >= 100) { w += o[Math.floor(n / 100)] + ' Hundred '; n %= 100; }
+      if (n >= 20) { w += t[Math.floor(n / 10)] + ' '; n %= 10; }
+      if (n > 0) { w += o[n] + ' '; }
+      return w.trim();
+    }
+    function amountToWords(amount) {
+      const r = Math.floor(amount), p = Math.round((amount - r) * 100);
+      let w = numberToWords(r) + ' Rupees';
+      if (p > 0) w += ' and ' + numberToWords(p) + ' Paise';
+      return w + ' Only';
+    }
+    let toastTimer = null;
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast'); t.textContent = msg; t.className = `show ${type}`;
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+    }
+  </script>
+</body>
+
+</html>
